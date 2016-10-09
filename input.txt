@@ -1,0 +1,9 @@
+state stateName1 2 3
+state stateName2 5 6
+transition stateName1 event stateName2
+state stateName3 2 4
+initial stateName1
+final stateName2
+transition stateName1 ? stateName1
+transition stateName2 event stateName3
+#fdsfdf
