@@ -19,14 +19,13 @@ public class FsaEditor extends javax.swing.JFrame {
     private void init() {
     	this.fsaIo = new FsaReaderWriter();
     	this.fsa = new FsaImpl();
-    	this.fsaListener = new FsaPanel();
-    	this.fsa.addListener(fsaListener);
+    	this.fsa.addListener(jPanel1);
     }
 
     @SuppressWarnings("unchecked")
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        jPanel1 = new FsaPanel();
         jPanel2 = new javax.swing.JPanel();
         resetButton = new javax.swing.JButton();
         stepButton = new javax.swing.JButton();
@@ -262,8 +261,7 @@ public class FsaEditor extends javax.swing.JFrame {
 			try {
 				r = new FileReader(this.openFC.getSelectedFile());
 				this.fsa = new FsaImpl();
-				this.fsaListener = new FsaPanel();
-		    	this.fsa.addListener(fsaListener);
+				this.fsa.addListener(jPanel1);
 				this.fsaIo.read(r, this.fsa);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -294,7 +292,6 @@ public class FsaEditor extends javax.swing.JFrame {
 			try {
 				w = new FileWriter(this.openFC.getSelectedFile());
 				this.fsaIo.write(w, this.fsa);
-				this.fsa.removeListener(fsaListener);
 			} catch (IOException e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(this, "The file can't be writen", "Save file",JOptionPane.WARNING_MESSAGE);  
@@ -365,14 +362,13 @@ public class FsaEditor extends javax.swing.JFrame {
 
     private FsaIo fsaIo;
     private Fsa fsa;
-    private FsaListener fsaListener;
     
     private javax.swing.JMenuItem deleteMI;
     private javax.swing.JTextField eventTF;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JPanel jPanel1;
+    private FsaPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JMenuItem newStateMI;
     private javax.swing.JMenuItem newTransitionMI;
