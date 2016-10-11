@@ -88,6 +88,9 @@ public class FsaImpl implements Fsa, FsaSim {
 		// new a state and store it
 		State state = new StateImpl(name, x, y);
 		states.add(state);
+		if(this.fsaListener != null) {
+			this.fsaListener.statesChanged();
+		}
 		return state;
 	}
 
@@ -108,6 +111,9 @@ public class FsaImpl implements Fsa, FsaSim {
 			}
 			// remove the state
 			states.remove(s);
+			if(this.fsaListener != null) {
+				this.fsaListener.statesChanged();
+			}
 		}
 	}
 
@@ -172,6 +178,9 @@ public class FsaImpl implements Fsa, FsaSim {
 		fromStateInFSA.transitionsFrom().add(transition);
 		// add this new state in the toState transitionsTo list
 		toStateInFSA.transitionsTo().add(transition);
+		if(this.fsaListener != null) {
+			this.fsaListener.transitionsChanged();
+		}
 		return transition;
 	}
 
@@ -200,6 +209,9 @@ public class FsaImpl implements Fsa, FsaSim {
 		if(fromState.transitionsFrom().remove(t)) {
 			// remove this input transition from the toState transitionsTo list
 			toState.transitionsTo().remove(t);
+			if(this.fsaListener != null) {
+				this.fsaListener.transitionsChanged();
+			}
 		}
 	}
 

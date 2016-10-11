@@ -7,6 +7,7 @@ import java.io.Writer;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FsaEditor extends javax.swing.JFrame {
 
@@ -18,6 +19,8 @@ public class FsaEditor extends javax.swing.JFrame {
     private void init() {
     	this.fsaIo = new FsaReaderWriter();
     	this.fsa = new FsaImpl();
+    	this.fsaListener = new FsaPanel();
+    	this.fsa.addListener(fsaListener);
     }
 
     @SuppressWarnings("unchecked")
@@ -54,7 +57,7 @@ public class FsaEditor extends javax.swing.JFrame {
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 609, Short.MAX_VALUE)
+            .addGap(0, 600, Short.MAX_VALUE)
         );
 
         jPanel2.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
@@ -96,6 +99,8 @@ public class FsaEditor extends javax.swing.JFrame {
         );
 
         openFC.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        openFC.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        openFC.setFileFilter(new FileNameExtensionFilter("FSA File","fsa"));
 
         jMenuBar1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jMenuBar1.setPreferredSize(new java.awt.Dimension(58, 30));
@@ -133,6 +138,12 @@ public class FsaEditor extends javax.swing.JFrame {
         quitMI.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         quitMI.setText("Quit");
         quitMI.setPreferredSize(new java.awt.Dimension(155, 30));
+        quitMI.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+			public void actionPerformed(final java.awt.event.ActionEvent evt) {
+            	quitMIActionPerformed(evt);
+            }
+        });
         jMenu1.add(quitMI);
 
         jMenuBar1.add(jMenu1);
@@ -144,36 +155,78 @@ public class FsaEditor extends javax.swing.JFrame {
         newStateMI.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         newStateMI.setText("New state");
         newStateMI.setPreferredSize(new java.awt.Dimension(127, 30));
+        newStateMI.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+			public void actionPerformed(final java.awt.event.ActionEvent evt) {
+            	newStateMIActionPerformed(evt);
+            }
+        });
         jMenu2.add(newStateMI);
 
         newTransitionMI.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         newTransitionMI.setText("New transition");
         newTransitionMI.setPreferredSize(new java.awt.Dimension(127, 30));
+        newTransitionMI.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+			public void actionPerformed(final java.awt.event.ActionEvent evt) {
+            	newTransitionMIActionPerformed(evt);
+            }
+        });
         jMenu2.add(newTransitionMI);
 
         setInitialMI.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         setInitialMI.setText("Set initial");
         setInitialMI.setPreferredSize(new java.awt.Dimension(127, 30));
+        setInitialMI.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+			public void actionPerformed(final java.awt.event.ActionEvent evt) {
+            	setInitialMIActionPerformed(evt);
+            }
+        });
         jMenu2.add(setInitialMI);
 
         unsetInitialMI.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         unsetInitialMI.setText("Unset initial");
         unsetInitialMI.setPreferredSize(new java.awt.Dimension(127, 30));
+        unsetInitialMI.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+			public void actionPerformed(final java.awt.event.ActionEvent evt) {
+            	unsetInitialMIActionPerformed(evt);
+            }
+        });
         jMenu2.add(unsetInitialMI);
 
         setFinalMI.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         setFinalMI.setText("Set final");
         setFinalMI.setPreferredSize(new java.awt.Dimension(127, 30));
+        setFinalMI.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+			public void actionPerformed(final java.awt.event.ActionEvent evt) {
+            	setFinalMIActionPerformed(evt);
+            }
+        });
         jMenu2.add(setFinalMI);
 
         unsetFinalMI.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         unsetFinalMI.setText("Unset final");
         unsetFinalMI.setPreferredSize(new java.awt.Dimension(127, 30));
+        unsetFinalMI.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+			public void actionPerformed(final java.awt.event.ActionEvent evt) {
+            	unsetFinalMIActionPerformed(evt);
+            }
+        });
         jMenu2.add(unsetFinalMI);
 
         deleteMI.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         deleteMI.setText("Delete");
         deleteMI.setPreferredSize(new java.awt.Dimension(127, 30));
+        deleteMI.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+			public void actionPerformed(final java.awt.event.ActionEvent evt) {
+            	deleteMIActionPerformed(evt);
+            }
+        });
         jMenu2.add(deleteMI);
 
         jMenuBar1.add(jMenu2);
@@ -205,8 +258,12 @@ public class FsaEditor extends javax.swing.JFrame {
     private void openMIActionPerformed(final java.awt.event.ActionEvent evt) {                                       
     	int returnValue = this.openFC.showOpenDialog(this);
     	if(returnValue == JFileChooser.APPROVE_OPTION) {
+    		Reader r = null;
 			try {
-				Reader r = new FileReader(this.openFC.getSelectedFile());
+				r = new FileReader(this.openFC.getSelectedFile());
+				this.fsa = new FsaImpl();
+				this.fsaListener = new FsaPanel();
+		    	this.fsa.addListener(fsaListener);
 				this.fsaIo.read(r, this.fsa);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -217,6 +274,15 @@ public class FsaEditor extends javax.swing.JFrame {
 			} catch (FsaFormatException e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(this, e.getMessage(), "Open file",JOptionPane.WARNING_MESSAGE);  
+			} finally {
+				if(r != null) {
+					try {
+						r.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+//				this.fsa.toString();
 			}
     	}
     }                                      
@@ -224,14 +290,49 @@ public class FsaEditor extends javax.swing.JFrame {
     private void saveMIActionPerformed(final java.awt.event.ActionEvent evt) {                                       
     	int returnValue = this.openFC.showSaveDialog(this);
     	if(returnValue == JFileChooser.APPROVE_OPTION) {
+    		Writer w = null;
 			try {
-				Writer w = new FileWriter(this.openFC.getSelectedFile());
+				w = new FileWriter(this.openFC.getSelectedFile());
 				this.fsaIo.write(w, this.fsa);
+				this.fsa.removeListener(fsaListener);
 			} catch (IOException e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(this, "The file can't be writen", "Save file",JOptionPane.WARNING_MESSAGE);  
+			} finally {
+				if(w != null) {
+					try {
+						w.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
 			}
     	}
+    }                                      
+
+    private void quitMIActionPerformed(final java.awt.event.ActionEvent evt) {    
+    	System.exit(0);
+    }
+    
+    private void newStateMIActionPerformed(final java.awt.event.ActionEvent evt) {                                       
+    }                                      
+    
+    private void newTransitionMIActionPerformed(final java.awt.event.ActionEvent evt) {                                       
+    }                                      
+    
+    private void setInitialMIActionPerformed(final java.awt.event.ActionEvent evt) {                                       
+    }                                      
+    
+    private void unsetInitialMIActionPerformed(final java.awt.event.ActionEvent evt) {                                       
+    }                                      
+    
+    private void setFinalMIActionPerformed(final java.awt.event.ActionEvent evt) {                                       
+    }                                      
+    
+    private void unsetFinalMIActionPerformed(final java.awt.event.ActionEvent evt) {                                       
+    }                                      
+    
+    private void deleteMIActionPerformed(final java.awt.event.ActionEvent evt) {                                       
     }                                      
 
     public static void main(final String args[]) {
@@ -264,6 +365,7 @@ public class FsaEditor extends javax.swing.JFrame {
 
     private FsaIo fsaIo;
     private Fsa fsa;
+    private FsaListener fsaListener;
     
     private javax.swing.JMenuItem deleteMI;
     private javax.swing.JTextField eventTF;
