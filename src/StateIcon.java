@@ -1,13 +1,17 @@
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 
 import javax.swing.JComponent;
 
 public class StateIcon extends JComponent implements StateListener {
 
+	public StateIcon() {
+		super();
+		setPreferredSize(new Dimension(800, 600));
+	}
 	@Override
 	public void StateHasChanged() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -17,9 +21,8 @@ public class StateIcon extends JComponent implements StateListener {
 	@Override
 	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
-		System.out.println("g>>"+g);
-		g.setColor(Color.GREEN);
-		g.fillOval(100, 100, 200, 200);
+		g.setColor(Color.RED);
+		g.fillOval(50, 30, 10, 10);;
 	}
 
 }
