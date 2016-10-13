@@ -1,3 +1,5 @@
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -95,8 +97,11 @@ public class FsaEditor extends JFrame {
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new Dimension(800, 600));
+        setResizable(false);
 
         jPanel1.setBackground(Color.white);
+        jPanel1.setPreferredSize(new Dimension(800, 600));
+        jPanel1.setLayout(null);
 
         jPanel2.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
         jPanel2.setPreferredSize(new Dimension(0, 30));
@@ -299,8 +304,10 @@ public class FsaEditor extends JFrame {
     		Reader r = null;
 			try {
 				r = new FileReader(this.openFC.getSelectedFile());
+				this.jPanel1.resetPanel();
 				this.fsa = new FsaImpl();
 				this.fsa.addListener(jPanel1);
+				this.jPanel1.setFsa(this.fsa);
 				this.fsaIo.read(r, this.fsa);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
