@@ -1,6 +1,5 @@
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -99,7 +98,7 @@ public class FsaEditor extends JFrame {
         setPreferredSize(new Dimension(800, 600));
         setResizable(false);
 
-        jPanel1.setBackground(Color.white);
+//        jPanel1.setBackground(Color.white);
         jPanel1.setPreferredSize(new Dimension(800, 600));
         jPanel1.setLayout(null);
 
@@ -364,16 +363,48 @@ public class FsaEditor extends JFrame {
     private void newTransitionMIActionPerformed(final ActionEvent evt) {                                       
     }                                      
     
-    private void setInitialMIActionPerformed(final ActionEvent evt) {                                       
+    private void setInitialMIActionPerformed(final ActionEvent evt) {
+    	for(Component c : this.jPanel1.getComponents()) {
+    		if(c instanceof StateIcon) {
+    			StateIcon si = (StateIcon) c;
+    			if(si.isSelected()) {
+    				si.getState().setInitial(true);
+    			}
+    		}
+    	}
     }                                      
     
     private void unsetInitialMIActionPerformed(final ActionEvent evt) {                                       
+    	for(Component c : this.jPanel1.getComponents()) {
+    		if(c instanceof StateIcon) {
+    			StateIcon si = (StateIcon) c;
+    			if(si.isSelected()) {
+    				si.getState().setInitial(false);
+    			}
+    		}
+    	}
     }                                      
     
     private void setFinalMIActionPerformed(final ActionEvent evt) {                                       
+    	for(Component c : this.jPanel1.getComponents()) {
+    		if(c instanceof StateIcon) {
+    			StateIcon si = (StateIcon) c;
+    			if(si.isSelected()) {
+    				si.getState().setFinal(true);
+    			}
+    		}
+    	}
     }                                      
     
     private void unsetFinalMIActionPerformed(final ActionEvent evt) {                                       
+    	for(Component c : this.jPanel1.getComponents()) {
+    		if(c instanceof StateIcon) {
+    			StateIcon si = (StateIcon) c;
+    			if(si.isSelected()) {
+    				si.getState().setFinal(false);
+    			}
+    		}
+    	}
     }                                      
     
     private void deleteMIActionPerformed(final ActionEvent evt) {                                       

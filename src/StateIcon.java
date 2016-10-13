@@ -47,4 +47,25 @@ public class StateIcon extends JComponent implements StateListener {
 		g.drawString(state.getName(), (50-len*6)/2, 30);
 	}
 
+	/**
+	 * @return the state
+	 */
+	public State getState() {
+		return state;
+	}
+
+	/**
+	 * @return the isSelected
+	 */
+	public boolean isSelected() {
+		return isSelected;
+	}
+
+	/**
+	 * @param isSelected the isSelected to set
+	 */
+	public void setSelected(final boolean isSelected) {
+		this.isSelected = isSelected;
+	}
+
 }
