@@ -9,9 +9,19 @@ import javax.swing.JPanel;
 
 public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener, MouseListener {
 
+	private static int M_IDLE = 0;
+	private static int M_SELECTING = 1;
+	private static int M_DRAGGING = 2;
+	
 	private Fsa fsa;
 	
 	private Set<State> states;
+	
+	private int machineState = M_IDLE;
+	
+	private int x0;
+	
+	private int y0;
 	
 	public FsaPanel() {
 		// initialize the states
@@ -24,6 +34,9 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 		states.clear();
 		this.removeAll();
 		this.fsa = null;
+		machineState = M_IDLE;
+		x0 = 0;
+		y0 = 0;
 	}
 
 	@Override
@@ -102,7 +115,21 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 
 	@Override
 	public void mousePressed(final MouseEvent e) {
-//		System.out.println("mouse press");
+		machineState = M_IDLE;
+		x0 = e.getX();
+		y0 = e.getY();
+		for(Component c : this.getComponents()) {
+			if(c instanceof StateIcon) {
+				StateIcon si = (StateIcon) c;
+				// the clicked point is inside the stateIcon
+				if(si.isInside(x0, y0)) {
+					si.setSelected(true);
+				} else {
+					si.setSelected(false);
+				}
+			}
+		}
+		repaint();
 	}
 
 	@Override
