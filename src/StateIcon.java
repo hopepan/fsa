@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 
 import javax.swing.JComponent;
 
@@ -13,6 +14,8 @@ public class StateIcon extends JComponent implements StateListener {
 	private State state;
 	
 	private boolean isSelected;
+	
+	private boolean isPressed;
 	
 	public StateIcon(final State s) {
 		this.state = s;
@@ -35,9 +38,10 @@ public class StateIcon extends JComponent implements StateListener {
 		super.paintComponent(g);
 		
 		// draw selection
-		if(isSelected) {
+		if(isSelected || isPressed) {
 			g.setColor(Color.YELLOW);
 			g.fillOval(0, Y_GAP, D_CIRCLE, D_CIRCLE);
+			isPressed = false;
 		} else {
 			g.setColor(Color.GRAY);
 			g.fillOval(0, Y_GAP, D_CIRCLE, D_CIRCLE);
@@ -70,7 +74,7 @@ public class StateIcon extends JComponent implements StateListener {
 		g.drawString(state.getName(), (D_CIRCLE-len*6)/2, Y_GAP+R_CIRCLE+5);
 	}
 
-	public boolean isInside(int x, int y) {
+	public boolean isInside(final int x, final int y) {
 		double circleX = getX() + R_CIRCLE;
 		double circleY = getY() + Y_GAP + R_CIRCLE;
 		double ar = Math.sqrt(Math.pow(Math.abs(x - circleX), 2)
@@ -81,6 +85,11 @@ public class StateIcon extends JComponent implements StateListener {
 			return true;
 		}
 	}
+	
+	public boolean intersects(final Rectangle rec) {
+		return rec.intersects(new Rectangle(this.getLocation().x, this.getLocation().y+Y_GAP, this.getWidth(), this.getHeight()-Y_GAP));
+	}
+	
 	/**
 	 * @return the state
 	 */
@@ -100,6 +109,20 @@ public class StateIcon extends JComponent implements StateListener {
 	 */
 	public void setSelected(final boolean isSelected) {
 		this.isSelected = isSelected;
+	}
+
+	/**
+	 * @return the isPressed
+	 */
+	public boolean isPressed() {
+		return isPressed;
+	}
+
+	/**
+	 * @param isPressed the isPressed to set
+	 */
+	public void setPressed(final boolean isPressed) {
+		this.isPressed = isPressed;
 	}
 
 }
