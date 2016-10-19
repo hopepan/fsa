@@ -5,6 +5,8 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -119,28 +121,43 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 
 	@Override
 	public void mousePressed(final MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1
-				&& machineState == M_IDLE) {
+		if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
 			x0 = e.getX();
 			y0 = e.getY();
 			x = x0;
 			y = y0;
-			boolean isOnBackground = true;
+			List<StateIcon> pressedList = new ArrayList<>();
 			for(Component c : this.getComponents()) {
 				if(c instanceof StateIcon) {
 					StateIcon si = (StateIcon) c;
 					// the pressed point is inside the stateIcon
 					if(si.isInside(x0, y0)) {
+						pressedList.add(si);
+						// bypass when the state was selected and is pressed again
+						if(si.isSelected()) {
+							// onbackground is false if any state is clicked 
+							isOnBackground = false;
+							break;
+						} else {
+							// select it when the state is not selected
+//							si.setSelected(true);
+						}
 						si.setPressed(true);
-						isOnBackground = false;
 					} else {
 						si.setPressed(false);
 						si.setSelected(false);
 					}
 				}
 			}
-			if(isOnBackground) {
+			// no state is pressed
+			if(pressedList.size() == 0) {
 				machineState = M_SELECTING;
+				for(Component c : this.getComponents()) {
+					if(c instanceof StateIcon) {
+						StateIcon si = (StateIcon) c;
+						si.setSelected(false);
+					}
+				}
 			} else {
 				machineState = M_DRAGGING;
 			}
@@ -169,7 +186,6 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 
 	@Override
 	public void mouseDragged(final MouseEvent e) {
-		System.out.println("dragged>>"+machineState);
 		if(machineState == M_SELECTING) {
 			x = e.getX();
 			y = e.getY();
@@ -184,7 +200,6 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 					}
 				}
 			}
-//			rec.intersects(r)
 			repaint();
 		}
 	}
@@ -196,7 +211,6 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 	@Override
 	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
-		System.out.println("paint>>>"+machineState);
 		if(machineState == M_SELECTING) {
 			g.setColor(Color.black);
 			Rectangle rec = buildRec(x0, y0, x, y);
