@@ -5,8 +5,6 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -102,21 +100,21 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 	@Override
 	public void mouseClicked(final MouseEvent e) {
 		// mouse left key single click
-		if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
-			int eX = e.getX();
-			int eY = e.getY();
-			for(Component c : this.getComponents()) {
-				if(c instanceof StateIcon) {
-					StateIcon si = (StateIcon) c;
-					// the clicked point is inside the stateIcon
-					if(si.isInside(eX, eY)) {
-						si.setSelected(!si.isSelected());
-						break;
-					}
-				}
-			}
-			repaint();
-		}
+//		if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
+//			int eX = e.getX();
+//			int eY = e.getY();
+//			for(Component c : this.getComponents()) {
+//				if(c instanceof StateIcon) {
+//					StateIcon si = (StateIcon) c;
+//					// the clicked point is inside the stateIcon
+//					if(si.isInside(eX, eY)) {
+//						si.setSelected(!si.isSelected());
+//						break;
+//					}
+//				}
+//			}
+//			repaint();
+//		}
 	}
 
 	@Override
@@ -126,31 +124,18 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 			y0 = e.getY();
 			x = x0;
 			y = y0;
-			List<StateIcon> pressedList = new ArrayList<>();
+			StateIcon selected = null;
 			for(Component c : this.getComponents()) {
 				if(c instanceof StateIcon) {
 					StateIcon si = (StateIcon) c;
 					// the pressed point is inside the stateIcon
 					if(si.isInside(x0, y0)) {
-						pressedList.add(si);
-						// bypass when the state was selected and is pressed again
-						if(si.isSelected()) {
-							// onbackground is false if any state is clicked 
-							isOnBackground = false;
-							break;
-						} else {
-							// select it when the state is not selected
-//							si.setSelected(true);
-						}
-						si.setPressed(true);
-					} else {
-						si.setPressed(false);
-						si.setSelected(false);
+						selected = si;
 					}
 				}
 			}
 			// no state is pressed
-			if(pressedList.size() == 0) {
+			if(selected == null) {
 				machineState = M_SELECTING;
 				for(Component c : this.getComponents()) {
 					if(c instanceof StateIcon) {
@@ -159,7 +144,18 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 					}
 				}
 			} else {
-				machineState = M_DRAGGING;
+				if(selected.isSelected()) {
+					machineState = M_DRAGGING;
+				} else {
+					for(Component c : this.getComponents()) {
+						if(c instanceof StateIcon) {
+							StateIcon si = (StateIcon) c;
+							si.setSelected(false);
+						}
+					}
+//					selected.setPressed(true);
+					selected.setSelected(true);
+				}
 			}
 			repaint();
 		}
@@ -167,10 +163,7 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 
 	@Override
 	public void mouseReleased(final MouseEvent e) {
-		System.out.println("release");
 		if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
-//			if(machineState == M_SELECTING) {
-//			}
 			machineState = M_IDLE;
 		}
 		repaint();
@@ -200,6 +193,20 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 					}
 				}
 			}
+			repaint();
+		} else if(machineState == M_DRAGGING) {
+			x = e.getX();
+			y = e.getY();
+			for(Component c : this.getComponents()) {
+				if(c instanceof StateIcon) {
+					StateIcon si = (StateIcon) c;
+					if(si.isSelected()) {
+						si.moveBy(x-x0, y-y0);
+					}
+				}
+			}
+			x0 = x;
+			y0 = y;
 			repaint();
 		}
 	}
