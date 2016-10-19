@@ -90,6 +90,11 @@ public class StateIcon extends JComponent implements StateListener {
 		return rec.intersects(new Rectangle(this.getLocation().x, this.getLocation().y+Y_GAP, this.getWidth(), this.getHeight()-Y_GAP));
 	}
 	
+	public void moveBy(final int dx, final int dy) {
+		this.state.moveBy(dx, dy);
+		setLocation(state.getXpos()+dx, state.getYpos()+dy);
+	}
+	
 	/**
 	 * @return the state
 	 */
