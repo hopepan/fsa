@@ -1,4 +1,7 @@
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -20,8 +23,9 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 	private int machineState = M_IDLE;
 	
 	private int x0;
-	
 	private int y0;
+	private int x;
+	private int y;
 	
 	public FsaPanel() {
 		// initialize the states
@@ -37,11 +41,12 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 		machineState = M_IDLE;
 		x0 = 0;
 		y0 = 0;
+		x = 0;
+		y = 0;
 	}
 
 	@Override
 	public void statesChanged() {
-		System.out.println("state");
 		Set<State> changedStates = new CopyOnWriteArraySet<>();
 		Set<State> statesInFSA = this.fsa.getStates();
 		int sizeInFSA = statesInFSA.size();
@@ -55,7 +60,6 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 					changedStates.add(s);
 				}
 			}
-			System.out.println("changedStates>>"+changedStates);
 			// handle the changed states
 			for(State s : changedStates) {
 				StateIcon si = new StateIcon(s);
@@ -115,31 +119,48 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 
 	@Override
 	public void mousePressed(final MouseEvent e) {
-		machineState = M_IDLE;
-		x0 = e.getX();
-		y0 = e.getY();
-		for(Component c : this.getComponents()) {
-			if(c instanceof StateIcon) {
-				StateIcon si = (StateIcon) c;
-				// the clicked point is inside the stateIcon
-				if(si.isInside(x0, y0)) {
-					si.setSelected(true);
-				} else {
-					si.setSelected(false);
+		if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1
+				&& machineState == M_IDLE) {
+			x0 = e.getX();
+			y0 = e.getY();
+			x = x0;
+			y = y0;
+			boolean isOnBackground = true;
+			for(Component c : this.getComponents()) {
+				if(c instanceof StateIcon) {
+					StateIcon si = (StateIcon) c;
+					// the pressed point is inside the stateIcon
+					if(si.isInside(x0, y0)) {
+						si.setPressed(true);
+						isOnBackground = false;
+					} else {
+						si.setPressed(false);
+						si.setSelected(false);
+					}
 				}
 			}
+			if(isOnBackground) {
+				machineState = M_SELECTING;
+			} else {
+				machineState = M_DRAGGING;
+			}
+			repaint();
+		}
+	}
+
+	@Override
+	public void mouseReleased(final MouseEvent e) {
+		System.out.println("release");
+		if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
+//			if(machineState == M_SELECTING) {
+//			}
+			machineState = M_IDLE;
 		}
 		repaint();
 	}
 
 	@Override
-	public void mouseReleased(final MouseEvent e) {
-//		System.out.println("mouse release");
-	}
-
-	@Override
 	public void mouseEntered(final MouseEvent e) {
-//		System.out.println("mouse enter");
 	}
 
 	@Override
@@ -148,11 +169,53 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 
 	@Override
 	public void mouseDragged(final MouseEvent e) {
-//		System.out.println("mouse drag");
+		System.out.println("dragged>>"+machineState);
+		if(machineState == M_SELECTING) {
+			x = e.getX();
+			y = e.getY();
+			Rectangle rec = buildRec(x0, y0, x, y);
+			for(Component c : this.getComponents()) {
+				if(c instanceof StateIcon) {
+					StateIcon si = (StateIcon) c;
+					if(si.intersects(rec)) {
+						si.setSelected(true);
+					} else {
+						si.setSelected(false);
+					}
+				}
+			}
+//			rec.intersects(r)
+			repaint();
+		}
 	}
 
 	@Override
 	public void mouseMoved(final MouseEvent e) {
+	}
+	
+	@Override
+	protected void paintComponent(final Graphics g) {
+		super.paintComponent(g);
+		System.out.println("paint>>>"+machineState);
+		if(machineState == M_SELECTING) {
+			g.setColor(Color.black);
+			Rectangle rec = buildRec(x0, y0, x, y);
+			g.drawRect(rec.x, rec.y, rec.width, rec.height);
+		}
+	}
+	
+	private Rectangle buildRec(final int x1, final int y1, final int x2, final int y2) {
+		Rectangle rec = null;
+		if(x2-x1 >= 0 && y2-y1 >= 0) {
+			rec = new Rectangle(x1, y1, x2-x1, y2-y1);
+		} else if(x2-x1 >= 0 && y2-y1 < 0) {
+			rec = new Rectangle(x1, y2, x2-x1, y1-y2);
+		} else if(x2-x1 < 0 && y2-y1 >= 0) {
+			rec = new Rectangle(x2, y1, x1-x2, y2-y1);
+		} else {
+			rec = new Rectangle(x2, y2, x1-x2, y1-y2);
+		}
+		return rec;
 	}
 	
 	/**
