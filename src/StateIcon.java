@@ -35,6 +35,7 @@ public class StateIcon extends JComponent implements StateListener {
 	 */
 	@Override
 	protected void paintComponent(final Graphics g) {
+		System.out.println("icon");
 		super.paintComponent(g);
 		
 		// draw selection
@@ -92,7 +93,7 @@ public class StateIcon extends JComponent implements StateListener {
 	
 	public void moveBy(final int dx, final int dy) {
 		this.state.moveBy(dx, dy);
-		setLocation(state.getXpos()+dx, state.getYpos()+dy);
+//		setLocation(state.getXpos()+dx, state.getYpos()+dy);
 	}
 	
 	/**

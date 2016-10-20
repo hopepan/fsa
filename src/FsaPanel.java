@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
@@ -8,6 +9,7 @@ import java.awt.event.MouseMotionListener;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener, MouseListener {
@@ -51,8 +53,6 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 		Set<State> statesInFSA = this.fsa.getStates();
 		int sizeInFSA = statesInFSA.size();
 		int size = states.size();
-		System.out.println("sizeInFSA>>"+sizeInFSA);
-		System.out.println("size>>"+size);
 		if(sizeInFSA > size) {
 			// added new state in FSA
 			for(State s : statesInFSA) {
@@ -65,17 +65,13 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 				StateIcon si = new StateIcon(s);
 //				si.setBorder(new LineBorder(Color.BLACK));
 				s.addListener(si);
-//				StateIconMouseListener l = new StateIconMouseListener();
-//				si.addMouseListener(l);
-//				si.addMouseMotionListener(l);
 				// add the state to panel
-				System.out.println(si);
 				this.add(si);
 				// update the states
 				states.add(s);
 			}
-//			repaint();
-			updateUI();
+			repaint();
+//			updateUI();
 		} else if(sizeInFSA < size) {
 			// removed new state in FSA
 			for(State s : states) {
@@ -157,7 +153,7 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 					selected.setSelected(true);
 				}
 			}
-			repaint();
+//			this.repaint();
 		}
 	}
 
@@ -166,7 +162,7 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 		if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
 			machineState = M_IDLE;
 		}
-		repaint();
+		this.repaint();
 	}
 
 	@Override
@@ -193,7 +189,7 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 					}
 				}
 			}
-			repaint();
+			this.repaint();
 		} else if(machineState == M_DRAGGING) {
 			x = e.getX();
 			y = e.getY();
@@ -207,7 +203,7 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 			}
 			x0 = x;
 			y0 = y;
-			repaint();
+//			this.repaint();
 		}
 	}
 
