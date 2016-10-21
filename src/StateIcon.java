@@ -7,9 +7,9 @@ import javax.swing.JComponent;
 
 public class StateIcon extends JComponent implements StateListener {
 
-	private static final int Y_GAP = 25;
-	private static final int D_CIRCLE = 50;
-	private static final int R_CIRCLE = D_CIRCLE/2;
+	public static final int Y_GAP = 25;
+	public static final int D_CIRCLE = 50;
+	public static final int R_CIRCLE = D_CIRCLE/2;
 	
 	private State state;
 	
