@@ -121,7 +121,7 @@ public class FsaReaderWriter implements FsaIo {
     	// print out the transitions
     	for(State s : f.getStates()) {
     		for(Transition t : s.transitionsFrom()) {
-    			sb.append("transition ").append(t.fromState().getName()).append(" ").append(t.eventName()==null?"":t.eventName()).append(" ").append(t.toState().getName()).append("\n");
+    			sb.append("transition ").append(t.fromState().getName()).append(" ").append(t.eventName()==null?"?":t.eventName()).append(" ").append(t.toState().getName()).append("\n");
     		}
     	}
     	// print out the initial states

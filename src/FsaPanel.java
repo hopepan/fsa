@@ -1,6 +1,5 @@
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
@@ -9,7 +8,6 @@ import java.awt.event.MouseMotionListener;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener, MouseListener {
@@ -85,6 +83,44 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 	@Override
 	public void transitionsChanged() {
 		System.out.println("transition");
+		Set<Transition> changedTran = new CopyOnWriteArraySet<>();
+		Set<State> statesInFSA = this.fsa.getStates();
+		int sizeInFSA = statesInFSA.size();
+		int size = states.size();
+		// transitions changed when delete state(s), no need to handle the new state case due to no transition change when new state
+		if(sizeInFSA < size) {
+			for(State s : states) {
+				if(!statesInFSA.contains(s)) {
+					changedTran.addAll(s.transitionsFrom());
+				}
+			}
+		} else if(sizeInFSA == size) {
+			for(State s : states) {
+				State sFsa = this.fsa.findState(s.getName());
+				Set<Transition> tFsa = sFsa.transitionsFrom();
+				Set<Transition> tPnl = s.transitionsFrom();
+				int transSizeFsa = tFsa.size();
+				int tranSize = tPnl.size();
+				if(transSizeFsa > tranSize) {
+					// new transitions in fsa
+					for(Transition tr : tFsa) {
+						if(!tPnl.contains(tr)) {
+							changedTran.add(tr);
+						}
+					}
+					// handle the new added transitions
+					
+				} else if(transSizeFsa < tranSize){
+					// delete transition in fsa
+					for(Transition tr : tPnl) {
+						if(!tFsa.contains(tr)) {
+							changedTran.add(tr);
+						}
+					}
+				}
+			}
+		}
+		
 	}
 
 	@Override

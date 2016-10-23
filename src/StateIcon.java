@@ -35,7 +35,6 @@ public class StateIcon extends JComponent implements StateListener {
 	 */
 	@Override
 	protected void paintComponent(final Graphics g) {
-		System.out.println("icon");
 		super.paintComponent(g);
 		
 		// draw selection

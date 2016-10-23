@@ -10,7 +10,7 @@ public class TransitionIcon extends JComponent implements TransitionListener {
 	
 	private double arc;
 	
-	public TransitionIcon(Transition t) {
+	public TransitionIcon(final Transition t) {
 		this.transition = t;
 	}
 	
@@ -26,25 +26,51 @@ public class TransitionIcon extends JComponent implements TransitionListener {
 		setLocation(x1<x2?x1:x2, y1<y2?y1:y2);
 		
 		// prepare the 3 points for curve
-		if(x1 == x2) {
-			arc = 0;
-		} else {
+		double xb1 = 0;
+		double yb1 = 0;
+		double xb2 = 0;
+		double yb2 = 0;
+		double xc = 0;
+		double yc = 0;
+		double b = Math.sqrt(Math.pow(y2-y1, 2) + Math.pow(x2-x1, 2))/2/Math.cos(FIX_ARC);
+		if(x2 > x1) {
 			arc = Math.atan((y2-y1)/(x2-x1));
-		}
-		double p1x = 0;
-		double p1y = 0;
-		if(x2 >= x1) {
-			p1x = x1 + StateIcon.R_CIRCLE + StateIcon.R_CIRCLE * Math.cos(FIX_ARC - arc);
-			p1y = y1 + StateIcon.R_CIRCLE - StateIcon.R_CIRCLE * Math.sin(FIX_ARC - arc);
+			xb1 = x1 + StateIcon.R_CIRCLE * (1 + Math.cos(FIX_ARC - arc));
+			yb1 = y1 + StateIcon.R_CIRCLE * (1 - Math.sin(FIX_ARC - arc));
+			xb2 = x2 + StateIcon.R_CIRCLE * (1 - Math.cos(FIX_ARC + arc));
+			yb2 = y2 + StateIcon.R_CIRCLE * (1 - Math.sin(FIX_ARC + arc));
+			xc = x1 + StateIcon.R_CIRCLE + b * Math.cos(FIX_ARC - arc);
+			yc = y1 + StateIcon.R_CIRCLE - b * Math.sin(FIX_ARC - arc);
+		} else if(x2 < x1){
+			arc = Math.atan((y2-y1)/(x2-x1));
+			xb1 = x1 + StateIcon.R_CIRCLE * (1 - Math.cos(FIX_ARC - arc));
+			yb1 = y1 + StateIcon.R_CIRCLE * (1 + Math.sin(FIX_ARC - arc));
+			xb2 = x2 + StateIcon.R_CIRCLE * (1 + Math.cos(FIX_ARC + arc));
+			yb2 = y2 + StateIcon.R_CIRCLE * (1 + Math.sin(FIX_ARC + arc));
+			xc = x1 + StateIcon.R_CIRCLE - b * Math.cos(FIX_ARC - arc);
+			yc = y1 + StateIcon.R_CIRCLE + b * Math.sin(FIX_ARC - arc);
 		} else {
-			p1x = x1 + StateIcon.R_CIRCLE - StateIcon.R_CIRCLE * Math.cos(FIX_ARC - arc);
-			p1y = y1 + StateIcon.R_CIRCLE + StateIcon.R_CIRCLE * Math.sin(FIX_ARC - arc);
+			if(y1 < y2) {
+				xb1 = x1 + StateIcon.R_CIRCLE * (1 + Math.sin(FIX_ARC));
+				yb1 = y1 + StateIcon.R_CIRCLE * (1 + Math.cos(FIX_ARC));
+				xb2 = x2 + StateIcon.R_CIRCLE * (1 + Math.sin(FIX_ARC));
+				yb2 = y2 + StateIcon.R_CIRCLE * (1 - Math.cos(FIX_ARC));
+				xc = x1 + StateIcon.R_CIRCLE + (y2 - y1) / 2 * Math.tan(FIX_ARC);
+				yc = y1 + StateIcon.R_CIRCLE +  (y2 - y1) / 2;
+			} else if(y1 > y2) {
+				xb1 = x1 + StateIcon.R_CIRCLE * (1 - Math.sin(FIX_ARC));
+				yb1 = y1 + StateIcon.R_CIRCLE * (1 - Math.cos(FIX_ARC));
+				xb2 = x2 + StateIcon.R_CIRCLE * (1 - Math.sin(FIX_ARC));
+				yb2 = y2 + StateIcon.R_CIRCLE * (1 + Math.cos(FIX_ARC));
+				xc = x1 + StateIcon.R_CIRCLE - (y2 - y1) / 2 * Math.tan(FIX_ARC);
+				yc = y1 + StateIcon.R_CIRCLE -  (y2 - y1) / 2;
+			}
 		}
 		
 	}
 
 	@Override
-	protected void paintComponent(Graphics g) {
+	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
 		
 	}
