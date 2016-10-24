@@ -20,6 +20,8 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 	
 	private Set<State> states;
 	
+	private Set<Transition> transitions;
+	
 	private int machineState = M_IDLE;
 	
 	private int x0;
@@ -30,12 +32,14 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 	public FsaPanel() {
 		// initialize the states
 		states = new CopyOnWriteArraySet<>();
+		transitions = new CopyOnWriteArraySet<>();
 		addMouseListener(this);
 		addMouseMotionListener(this);
 	}
 	
 	public void resetPanel() {
 		states.clear();
+		transitions.clear();
 		this.removeAll();
 		this.fsa = null;
 		machineState = M_IDLE;
@@ -82,45 +86,35 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 
 	@Override
 	public void transitionsChanged() {
-		System.out.println("transition");
 		Set<Transition> changedTran = new CopyOnWriteArraySet<>();
 		Set<State> statesInFSA = this.fsa.getStates();
-		int sizeInFSA = statesInFSA.size();
-		int size = states.size();
-		// transitions changed when delete state(s), no need to handle the new state case due to no transition change when new state
-		if(sizeInFSA < size) {
-			for(State s : states) {
-				if(!statesInFSA.contains(s)) {
-					changedTran.addAll(s.transitionsFrom());
-				}
-			}
-		} else if(sizeInFSA == size) {
-			for(State s : states) {
-				State sFsa = this.fsa.findState(s.getName());
-				Set<Transition> tFsa = sFsa.transitionsFrom();
-				Set<Transition> tPnl = s.transitionsFrom();
-				int transSizeFsa = tFsa.size();
-				int tranSize = tPnl.size();
-				if(transSizeFsa > tranSize) {
-					// new transitions in fsa
-					for(Transition tr : tFsa) {
-						if(!tPnl.contains(tr)) {
-							changedTran.add(tr);
-						}
-					}
-					// handle the new added transitions
-					
-				} else if(transSizeFsa < tranSize){
-					// delete transition in fsa
-					for(Transition tr : tPnl) {
-						if(!tFsa.contains(tr)) {
-							changedTran.add(tr);
-						}
-					}
-				}
-			}
+		int transSize = this.transitions.size();
+		int transSizeFSA = 0;
+		for(State s : statesInFSA) {
+			transSizeFSA += s.transitionsFrom().size();
 		}
-		
+		System.out.println("transSizeFSA>>"+transSizeFSA);
+		System.out.println("transSize>>"+transSize);
+		if(transSizeFSA > transSize) {
+			for(State s : statesInFSA) {
+				Set<Transition> froms = s.transitionsFrom();
+				for(Transition t : froms) {
+					if(!transitions.contains(t)) {
+						changedTran.add(t);
+					}
+				}
+			}
+			System.out.println("changedTran>>"+changedTran);
+			// handle the changed transitions
+			for(Transition t : changedTran) {
+				TransitionIcon ti = new TransitionIcon(t);
+				t.addListener(ti);
+				this.add(ti);
+				ti.TransitionHasChanged();
+				transitions.add(t);
+			}
+			repaint();
+		}
 	}
 
 	@Override
@@ -229,16 +223,23 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 		} else if(machineState == M_DRAGGING) {
 			x = e.getX();
 			y = e.getY();
-			for(Component c : this.getComponents()) {
-				if(c instanceof StateIcon) {
-					StateIcon si = (StateIcon) c;
-					if(si.isSelected()) {
-						si.moveBy(x-x0, y-y0);
+			if(x > 0 && x < this.getWidth() - StateIcon.D_CIRCLE
+					&& y > 0 && y < this.getHeight() - StateIcon.D_CIRCLE) {
+				for(Component c : this.getComponents()) {
+					if(c instanceof StateIcon) {
+						StateIcon si = (StateIcon) c;
+						if(si.isSelected()) {
+							si.moveBy(x-x0, y-y0);
+						}
+					} else if(c instanceof TransitionIcon) {
+						TransitionIcon ti = (TransitionIcon) c;
+						ti.TransitionHasChanged();
 					}
 				}
+				x0 = x;
+				y0 = y;
 			}
-			x0 = x;
-			y0 = y;
+			
 //			this.repaint();
 		}
 	}
