@@ -1,11 +1,9 @@
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.QuadCurve2D;
 
 import javax.swing.JComponent;
-import javax.swing.border.LineBorder;
 
 public class TransitionIcon extends JComponent implements TransitionListener {
 
@@ -43,37 +41,39 @@ public class TransitionIcon extends JComponent implements TransitionListener {
 		
 		// prepare the 3 points for curve
 		double b = Math.sqrt(Math.pow(y2-y1, 2) + Math.pow(x2-x1, 2))/2/Math.cos(FIX_ARC);
+		int lx = getLocation().x;
+		int ly = getLocation().y;
 		if(x2 > x1) {
 			arc = Math.atan((y2-y1)/(x2-x1));
-			xb1 = x1 - this.getX() + StateIcon.R_CIRCLE * (1 + Math.cos(FIX_ARC - arc));
-			yb1 = y1 - this.getY() + StateIcon.Y_GAP + StateIcon.R_CIRCLE * (1 - Math.sin(FIX_ARC - arc));
-			xb2 = x2 - this.getX() + StateIcon.R_CIRCLE * (1 - Math.cos(FIX_ARC + arc));
-			yb2 = y2 - this.getY() + StateIcon.Y_GAP + StateIcon.R_CIRCLE * (1 - Math.sin(FIX_ARC + arc));
-			xc = x1 - this.getX() + StateIcon.R_CIRCLE + b * Math.cos(FIX_ARC - arc);
-			yc = y1 - this.getY() + StateIcon.Y_GAP + StateIcon.R_CIRCLE - b * Math.sin(FIX_ARC - arc);
+			xb1 = x1 - lx + StateIcon.R_CIRCLE * (1 + Math.cos(FIX_ARC - arc));
+			yb1 = y1 - ly + StateIcon.Y_GAP + StateIcon.R_CIRCLE * (1 - Math.sin(FIX_ARC - arc));
+			xb2 = x2 - lx + StateIcon.R_CIRCLE * (1 - Math.cos(FIX_ARC + arc));
+			yb2 = y2 - ly + StateIcon.Y_GAP + StateIcon.R_CIRCLE * (1 - Math.sin(FIX_ARC + arc));
+			xc = x1 - lx + StateIcon.R_CIRCLE + b * Math.cos(FIX_ARC - arc);
+			yc = y1 - ly + StateIcon.Y_GAP + StateIcon.R_CIRCLE - b * Math.sin(FIX_ARC - arc);
 		} else if(x2 < x1){
 			arc = Math.atan((y2-y1)/(x2-x1));
-			xb1 = x1 - this.getX() + StateIcon.R_CIRCLE * (1 - Math.cos(FIX_ARC - arc));
-			yb1 = y1 - this.getY() + StateIcon.Y_GAP + StateIcon.R_CIRCLE * (1 + Math.sin(FIX_ARC - arc));
-			xb2 = x2 - this.getX() + StateIcon.R_CIRCLE * (1 + Math.cos(FIX_ARC + arc));
-			yb2 = y2 - this.getY() + StateIcon.Y_GAP+ StateIcon.R_CIRCLE * (1 + Math.sin(FIX_ARC + arc));
-			xc = x1 - this.getX() + StateIcon.R_CIRCLE - b * Math.cos(FIX_ARC - arc);
-			yc = y1 - this.getY() + StateIcon.Y_GAP + StateIcon.R_CIRCLE + b * Math.sin(FIX_ARC - arc);
+			xb1 = x1 - lx + StateIcon.R_CIRCLE * (1 - Math.cos(FIX_ARC - arc));
+			yb1 = y1 - ly + StateIcon.Y_GAP + StateIcon.R_CIRCLE * (1 + Math.sin(FIX_ARC - arc));
+			xb2 = x2 - lx + StateIcon.R_CIRCLE * (1 + Math.cos(FIX_ARC + arc));
+			yb2 = y2 - ly + StateIcon.Y_GAP+ StateIcon.R_CIRCLE * (1 + Math.sin(FIX_ARC + arc));
+			xc = x1 - lx + StateIcon.R_CIRCLE - b * Math.cos(FIX_ARC - arc);
+			yc = y1 - ly + StateIcon.Y_GAP + StateIcon.R_CIRCLE + b * Math.sin(FIX_ARC - arc);
 		} else {
 			if(y1 < y2) {
-				xb1 = x1 - this.getX() + StateIcon.R_CIRCLE * (1 + Math.sin(FIX_ARC));
-				yb1 = y1 - this.getY() + StateIcon.Y_GAP + StateIcon.R_CIRCLE * (1 + Math.cos(FIX_ARC));
-				xb2 = x2 - this.getX() + StateIcon.R_CIRCLE * (1 + Math.sin(FIX_ARC));
-				yb2 = y2 - this.getY() + StateIcon.Y_GAP + StateIcon.R_CIRCLE * (1 - Math.cos(FIX_ARC));
-				xc = x1 - this.getX() + StateIcon.R_CIRCLE + (y2 - y1) / 2 * Math.tan(FIX_ARC);
-				yc = y1 - this.getY() + StateIcon.Y_GAP + StateIcon.R_CIRCLE +  (y2 - y1) / 2;
+				xb1 = x1 - lx + StateIcon.R_CIRCLE * (1 + Math.sin(FIX_ARC));
+				yb1 = y1 - ly + StateIcon.Y_GAP + StateIcon.R_CIRCLE * (1 + Math.cos(FIX_ARC));
+				xb2 = x2 - lx + StateIcon.R_CIRCLE * (1 + Math.sin(FIX_ARC));
+				yb2 = y2 - ly + StateIcon.Y_GAP + StateIcon.R_CIRCLE * (1 - Math.cos(FIX_ARC));
+				xc = x1 - lx + StateIcon.R_CIRCLE + (y2 - y1) / 2 * Math.tan(FIX_ARC);
+				yc = y1 - ly + StateIcon.Y_GAP + StateIcon.R_CIRCLE +  (y2 - y1) / 2;
 			} else if(y1 > y2) {
-				xb1 = x1 - this.getX() + StateIcon.R_CIRCLE * (1 - Math.sin(FIX_ARC));
-				yb1 = y1 - this.getY() + StateIcon.Y_GAP + StateIcon.R_CIRCLE * (1 - Math.cos(FIX_ARC));
-				xb2 = x2 - this.getX() + StateIcon.R_CIRCLE * (1 - Math.sin(FIX_ARC));
-				yb2 = y2 - this.getY() + StateIcon.Y_GAP + StateIcon.R_CIRCLE * (1 + Math.cos(FIX_ARC));
-				xc = x1 - this.getX() + StateIcon.R_CIRCLE - (y2 - y1) / 2 * Math.tan(FIX_ARC);
-				yc = y1 - this.getY() + StateIcon.Y_GAP + StateIcon.R_CIRCLE -  (y2 - y1) / 2;
+				xb1 = x1 - lx + StateIcon.R_CIRCLE * (1 - Math.sin(FIX_ARC));
+				yb1 = y1 - ly + StateIcon.Y_GAP + StateIcon.R_CIRCLE * (1 - Math.cos(FIX_ARC));
+				xb2 = x2 - lx + StateIcon.R_CIRCLE * (1 - Math.sin(FIX_ARC));
+				yb2 = y2 - ly + StateIcon.Y_GAP + StateIcon.R_CIRCLE * (1 + Math.cos(FIX_ARC));
+				xc = x1 - lx + StateIcon.R_CIRCLE - (y2 - y1) / 2 * Math.tan(FIX_ARC);
+				yc = y1 - ly + StateIcon.Y_GAP + StateIcon.R_CIRCLE -  (y2 - y1) / 2;
 			}
 		}
 	}
@@ -86,7 +86,7 @@ public class TransitionIcon extends JComponent implements TransitionListener {
 		Graphics2D g2 = (Graphics2D) g;
 		g2.draw(shape);
 		g.setColor(Color.BLACK);
-		g.drawString(transition.eventName(), (int)xc, (int)yc);
+		g.drawString(transition.eventName()==null?"?":transition.eventName(), (int)xc, (int)yc);
 		
 	}
 }
