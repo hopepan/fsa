@@ -38,10 +38,9 @@ public class StateIcon extends JComponent implements StateListener {
 		super.paintComponent(g);
 		
 		// draw selection
-		if(isSelected || isPressed) {
+		if(isSelected) {
 			g.setColor(Color.YELLOW);
 			g.fillOval(0, Y_GAP, D_CIRCLE, D_CIRCLE);
-			isPressed = false;
 		} else {
 			g.setColor(Color.GRAY);
 			g.fillOval(0, Y_GAP, D_CIRCLE, D_CIRCLE);

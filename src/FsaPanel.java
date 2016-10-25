@@ -5,6 +5,8 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -18,9 +20,9 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 	
 	private Fsa fsa;
 	
-	private Set<State> states;
+	private Map<State, StateIcon> states;
 	
-	private Set<Transition> transitions;
+	private Map<Transition, TransitionIcon> transitions;
 	
 	private int machineState = M_IDLE;
 	
@@ -31,8 +33,8 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 	
 	public FsaPanel() {
 		// initialize the states
-		states = new CopyOnWriteArraySet<>();
-		transitions = new CopyOnWriteArraySet<>();
+		states = new HashMap<>();
+		transitions = new HashMap<>();
 		addMouseListener(this);
 		addMouseMotionListener(this);
 	}
@@ -51,42 +53,38 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 
 	@Override
 	public void statesChanged() {
-		Set<State> changedStates = new CopyOnWriteArraySet<>();
 		Set<State> statesInFSA = this.fsa.getStates();
 		int sizeInFSA = statesInFSA.size();
 		int size = states.size();
+		System.out.println("sizeInFSA>>"+sizeInFSA);
+		System.out.println("size>>"+size);
 		if(sizeInFSA > size) {
 			// added new state in FSA
 			for(State s : statesInFSA) {
-				if(!states.contains(s)) {
-					changedStates.add(s);
+				if(!states.containsKey(s)) {
+					StateIcon si = new StateIcon(s);
+//				si.setBorder(new LineBorder(Color.BLACK));
+					s.addListener(si);
+					// add the state to panel
+					this.add(si);
+					// update the states
+//					states.add(s);
+					states.put(s, si);
 				}
 			}
-			// handle the changed states
-			for(State s : changedStates) {
-				StateIcon si = new StateIcon(s);
-//				si.setBorder(new LineBorder(Color.BLACK));
-				s.addListener(si);
-				// add the state to panel
-				this.add(si);
-				// update the states
-				states.add(s);
-			}
-			repaint();
-//			updateUI();
 		} else if(sizeInFSA < size) {
 			// removed new state in FSA
-			for(State s : states) {
+			for(State s : states.keySet()) {
 				if(!statesInFSA.contains(s)) {
-					changedStates.add(s);
+					this.remove(states.get(s));
 				}
 			}
 		}
+		repaint();
 	}
 
 	@Override
 	public void transitionsChanged() {
-		Set<Transition> changedTran = new CopyOnWriteArraySet<>();
 		Set<State> statesInFSA = this.fsa.getStates();
 		int transSize = this.transitions.size();
 		int transSizeFSA = 0;
@@ -96,25 +94,36 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 		System.out.println("transSizeFSA>>"+transSizeFSA);
 		System.out.println("transSize>>"+transSize);
 		if(transSizeFSA > transSize) {
+			// new transitions
 			for(State s : statesInFSA) {
 				Set<Transition> froms = s.transitionsFrom();
 				for(Transition t : froms) {
-					if(!transitions.contains(t)) {
-						changedTran.add(t);
+					if(!transitions.containsKey(t)) {
+						TransitionIcon ti = new TransitionIcon(t);
+						t.addListener(ti);
+						this.add(ti);
+						ti.TransitionHasChanged();
+						transitions.put(t, ti);
 					}
 				}
 			}
-			System.out.println("changedTran>>"+changedTran);
-			// handle the changed transitions
-			for(Transition t : changedTran) {
-				TransitionIcon ti = new TransitionIcon(t);
-				t.addListener(ti);
-				this.add(ti);
-				ti.TransitionHasChanged();
-				transitions.add(t);
+		} else if(transSizeFSA < transSize) {
+			// remove transitions
+			for(Transition t : transitions.keySet()) {
+				boolean isDeleted = true;
+				for(State s : statesInFSA) {
+					Set<Transition> froms = s.transitionsFrom();
+					if(froms.contains(t)) {
+						isDeleted = false;
+						break;
+					}
+				}
+				if(isDeleted) {
+					this.remove(transitions.get(t));
+				}
 			}
-			repaint();
 		}
+		repaint();
 	}
 
 	@Override
@@ -246,6 +255,7 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 
 	@Override
 	public void mouseMoved(final MouseEvent e) {
+//		System.out.println(e.getY());
 	}
 	
 	@Override

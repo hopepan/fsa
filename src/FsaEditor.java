@@ -3,6 +3,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -20,6 +22,7 @@ import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -38,6 +41,7 @@ public class FsaEditor extends JFrame {
     
     private JMenuItem deleteMI;
     private JTextField eventTF;
+    private JLabel recognizedLb;
     private JMenu jMenu1;
     private JMenu jMenu2;
     private JMenuBar jMenuBar1;
@@ -79,6 +83,7 @@ public class FsaEditor extends JFrame {
         resetButton = new JButton();
         stepButton = new JButton();
         eventTF = new JTextField();
+        recognizedLb = new JLabel();
         openFC = new JFileChooser();
         jMenuBar1 = new JMenuBar();
         jMenu1 = new JMenu();
@@ -116,8 +121,15 @@ public class FsaEditor extends JFrame {
 
         stepButton.setFont(new Font("Arial", 0, 12)); // NOI18N
         stepButton.setText("Step");
+        stepButton.addActionListener(new ActionListener() {
+        	@Override
+        	public void actionPerformed(final ActionEvent evt) {
+        		stepButtonActionPerformed(evt);
+        	}
+        });
 
         eventTF.setFont(new Font("Arial", 0, 12)); // NOI18N
+        recognizedLb.setFont(new Font("Arial", 0, 12)); // NOI18N
 
         GroupLayout jPanel2Layout = new GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -125,8 +137,10 @@ public class FsaEditor extends JFrame {
             jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
             .addGroup(GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(eventTF, GroupLayout.PREFERRED_SIZE, 234, GroupLayout.PREFERRED_SIZE)
-                .addGap(232, 232, 232)
+                .addComponent(eventTF, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(69, 69, 69)
+                .addComponent(recognizedLb, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(64, 64, 64)
                 .addComponent(resetButton)
                 .addGap(44, 44, 44)
                 .addComponent(stepButton)
@@ -137,7 +151,8 @@ public class FsaEditor extends JFrame {
             .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                 .addComponent(resetButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(stepButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(eventTF, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE))
+                .addComponent(eventTF, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+            	.addComponent(recognizedLb, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         
         openFC.setFont(new Font("Arial", 0, 12)); // NOI18N
@@ -293,8 +308,15 @@ public class FsaEditor extends JFrame {
         pack();
     }                        
 
-    private void resetButtonActionPerformed(final ActionEvent evt) {                                            
-        // TODO add your handling code here:
+    private void resetButtonActionPerformed(final ActionEvent evt) {   
+    	this.recognizedLb.setText("");
+    	this.eventTF.setText("");
+        ((FsaSim)this.fsa).reset();
+    }                                           
+
+    private void stepButtonActionPerformed(final ActionEvent evt) {                                            
+    	((FsaSim)this.fsa).step(this.eventTF.getText());
+    	this.recognizedLb.setText(""+((FsaSim)this.fsa).isRecognised());
     }                                           
 
     private void openMIActionPerformed(final ActionEvent evt) {                                       
@@ -325,8 +347,6 @@ public class FsaEditor extends JFrame {
 						e.printStackTrace();
 					}
 				}
-				
-//				this.fsa.toString();
 			}
     	}
     }                                      
@@ -357,10 +377,26 @@ public class FsaEditor extends JFrame {
     	System.exit(0);
     }
     
-    private void newStateMIActionPerformed(final ActionEvent evt) {                                       
+    private void newStateMIActionPerformed(final ActionEvent evt) {
+    	String name = JOptionPane.showInputDialog(this, "Please input the State name"); 
+    	Point mousePoint = MouseInfo.getPointerInfo().getLocation();
+    	try {
+    		this.fsa.newState(name, mousePoint.x, mousePoint.y);
+    		
+		} catch (IllegalArgumentException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage(), "New State",JOptionPane.WARNING_MESSAGE);
+		}
     }                                      
     
     private void newTransitionMIActionPerformed(final ActionEvent evt) {                                       
+    	String name = JOptionPane.showInputDialog(this, "Please input the Event name"); 
+    	Point mousePoint = MouseInfo.getPointerInfo().getLocation();
+    	try {
+//    		this.fsa.newTransition(fromState, toState, name);
+    		
+    	} catch (IllegalArgumentException e) {
+    		JOptionPane.showMessageDialog(this, e.getMessage(), "New Transition",JOptionPane.WARNING_MESSAGE);
+    	}
     }                                      
     
     private void setInitialMIActionPerformed(final ActionEvent evt) {
@@ -408,6 +444,15 @@ public class FsaEditor extends JFrame {
     }                                      
     
     private void deleteMIActionPerformed(final ActionEvent evt) {                                       
+    	for(Component c : this.jPanel1.getComponents()) {
+    		if(c instanceof StateIcon) {
+    			StateIcon si = (StateIcon) c;
+    			if(si.isSelected()) {
+    				System.out.println(si.getState().getName());
+    				this.fsa.removeState(si.getState());
+    			}
+    		}
+    	}
     }                                      
 
     public static void main(final String args[]) {
