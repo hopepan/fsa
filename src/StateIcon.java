@@ -15,8 +15,6 @@ public class StateIcon extends JComponent implements StateListener {
 	
 	private boolean isSelected;
 	
-	private boolean isPressed;
-	
 	public StateIcon(final State s) {
 		this.state = s;
 		// set these 2 lines for paint this component
@@ -113,20 +111,6 @@ public class StateIcon extends JComponent implements StateListener {
 	 */
 	public void setSelected(final boolean isSelected) {
 		this.isSelected = isSelected;
-	}
-
-	/**
-	 * @return the isPressed
-	 */
-	public boolean isPressed() {
-		return isPressed;
-	}
-
-	/**
-	 * @param isPressed the isPressed to set
-	 */
-	public void setPressed(final boolean isPressed) {
-		this.isPressed = isPressed;
 	}
 
 }

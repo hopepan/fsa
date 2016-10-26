@@ -381,8 +381,8 @@ public class FsaEditor extends JFrame {
     	String name = JOptionPane.showInputDialog(this, "Please input the State name"); 
     	Point mousePoint = MouseInfo.getPointerInfo().getLocation();
     	try {
-    		this.fsa.newState(name, mousePoint.x, mousePoint.y);
-    		
+    		State s = this.fsa.newState(name, mousePoint.x, mousePoint.y);
+    		this.jPanel1.setMachineStateCreatingState(s);
 		} catch (IllegalArgumentException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage(), "New State",JOptionPane.WARNING_MESSAGE);
 		}
@@ -390,13 +390,7 @@ public class FsaEditor extends JFrame {
     
     private void newTransitionMIActionPerformed(final ActionEvent evt) {                                       
     	String name = JOptionPane.showInputDialog(this, "Please input the Event name"); 
-    	Point mousePoint = MouseInfo.getPointerInfo().getLocation();
-    	try {
-//    		this.fsa.newTransition(fromState, toState, name);
-    		
-    	} catch (IllegalArgumentException e) {
-    		JOptionPane.showMessageDialog(this, e.getMessage(), "New Transition",JOptionPane.WARNING_MESSAGE);
-    	}
+		this.jPanel1.setMachineStateCreatingTransition(name);
     }                                      
     
     private void setInitialMIActionPerformed(final ActionEvent evt) {
@@ -448,7 +442,6 @@ public class FsaEditor extends JFrame {
     		if(c instanceof StateIcon) {
     			StateIcon si = (StateIcon) c;
     			if(si.isSelected()) {
-    				System.out.println(si.getState().getName());
     				this.fsa.removeState(si.getState());
     			}
     		}

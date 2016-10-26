@@ -1,6 +1,9 @@
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Graphics;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -8,23 +11,31 @@ import java.awt.event.MouseMotionListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener, MouseListener {
 
-	private static int M_IDLE = 0;
-	private static int M_SELECTING = 1;
-	private static int M_DRAGGING = 2;
+	private final static int M_CREATING_TRANSITION = -2;
+	private final static int M_CREATING_STATE = -1;
+	private final static int M_IDLE = 0;
+	private final static int M_SELECTING = 1;
+	private final static int M_DRAGGING = 2;
 	
+	private int machineState = M_IDLE;
+
 	private Fsa fsa;
 	
 	private Map<State, StateIcon> states;
 	
 	private Map<Transition, TransitionIcon> transitions;
 	
-	private int machineState = M_IDLE;
+	private State creatingState;
+	
+	private String creatingEventName;
+	private StateIcon fromStateIcon;
+	private StateIcon toStateIcon;
 	
 	private int x0;
 	private int y0;
@@ -45,6 +56,10 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 		this.removeAll();
 		this.fsa = null;
 		machineState = M_IDLE;
+		creatingState = null;
+		creatingEventName = null;
+		fromStateIcon = null;
+		toStateIcon = null;
 		x0 = 0;
 		y0 = 0;
 		x = 0;
@@ -56,8 +71,6 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 		Set<State> statesInFSA = this.fsa.getStates();
 		int sizeInFSA = statesInFSA.size();
 		int size = states.size();
-		System.out.println("sizeInFSA>>"+sizeInFSA);
-		System.out.println("size>>"+size);
 		if(sizeInFSA > size) {
 			// added new state in FSA
 			for(State s : statesInFSA) {
@@ -91,8 +104,6 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 		for(State s : statesInFSA) {
 			transSizeFSA += s.transitionsFrom().size();
 		}
-		System.out.println("transSizeFSA>>"+transSizeFSA);
-		System.out.println("transSize>>"+transSize);
 		if(transSizeFSA > transSize) {
 			// new transitions
 			for(State s : statesInFSA) {
@@ -134,6 +145,44 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 
 	@Override
 	public void mouseClicked(final MouseEvent e) {
+		if(machineState == M_CREATING_STATE) {
+			this.creatingState = null;
+			machineState = M_IDLE;
+		} else if(machineState == M_CREATING_TRANSITION) {
+			int eX = e.getX();
+			int eY = e.getY();
+			for(Component c : this.getComponents()) {
+				if(c instanceof StateIcon) {
+					StateIcon si = (StateIcon) c;
+					// the clicked point is inside the stateIcon
+					if(si.isInside(eX, eY)) {
+						if(fromStateIcon == null) {
+							this.fromStateIcon = si;
+						} else if(toStateIcon == null) {
+							this.toStateIcon = si;
+							try {
+								this.fsa.newTransition(fromStateIcon.getState(), toStateIcon.getState(), this.creatingEventName);
+							} catch (IllegalArgumentException ex) {
+					    		JOptionPane.showMessageDialog(this, ex.getMessage(), "New Transition",JOptionPane.WARNING_MESSAGE);
+					    	}
+							setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+							machineState = M_IDLE;
+							this.creatingEventName = null;
+							this.fromStateIcon = null;
+							this.toStateIcon = null;
+						}
+						break;
+					}
+				}
+			}
+			if(fromStateIcon == null && toStateIcon == null) {
+				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				machineState = M_IDLE;
+				this.creatingEventName = null;
+				this.fromStateIcon = null;
+				this.toStateIcon = null;
+			}
+		}
 		// mouse left key single click
 //		if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
 //			int eX = e.getX();
@@ -151,10 +200,12 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 //			repaint();
 //		}
 	}
+	
 
 	@Override
 	public void mousePressed(final MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
+		if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1
+				&& machineState == M_IDLE) {
 			x0 = e.getX();
 			y0 = e.getY();
 			x = x0;
@@ -198,7 +249,8 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 
 	@Override
 	public void mouseReleased(final MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
+		if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1
+				&& (machineState == M_DRAGGING || machineState == M_SELECTING)) {
 			machineState = M_IDLE;
 		}
 		this.repaint();
@@ -255,7 +307,12 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 
 	@Override
 	public void mouseMoved(final MouseEvent e) {
-//		System.out.println(e.getY());
+		if(machineState == M_CREATING_STATE && this.creatingState != null) {
+			this.creatingState.moveBy(e.getX()-this.creatingState.getXpos()-StateIcon.R_CIRCLE, 
+					e.getY()-this.creatingState.getYpos()-StateIcon.Y_GAP-StateIcon.R_CIRCLE);
+		} else if(machineState == M_CREATING_TRANSITION && fromStateIcon != null) {
+			repaint();
+		}
 	}
 	
 	@Override
@@ -265,6 +322,13 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 			g.setColor(Color.black);
 			Rectangle rec = buildRec(x0, y0, x, y);
 			g.drawRect(rec.x, rec.y, rec.width, rec.height);
+		} else if(machineState == M_CREATING_TRANSITION) {
+			setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+			if(fromStateIcon != null && toStateIcon == null) {
+				Point p = fromStateIcon.getLocation();
+				Point mousePoint = MouseInfo.getPointerInfo().getLocation();
+				g.drawLine(p.x+StateIcon.R_CIRCLE, p.y+StateIcon.R_CIRCLE+StateIcon.Y_GAP, mousePoint.x, mousePoint.y-StateIcon.R_CIRCLE-StateIcon.Y_GAP);
+			}
 		}
 	}
 	
@@ -282,6 +346,18 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 		return rec;
 	}
 	
+	public void setMachineStateCreatingState(State s) {
+		this.machineState = M_CREATING_STATE;
+		this.creatingState = s;
+	}
+	
+	public void setMachineStateCreatingTransition(String eventName) {
+		this.machineState = M_CREATING_TRANSITION;
+		this.creatingEventName = eventName;
+		this.fromStateIcon = null;
+		this.toStateIcon = null;
+	}
+
 	/**
 	 * @param fsa the fsa to set
 	 */
