@@ -43,6 +43,10 @@ public class TransitionIcon extends JComponent implements TransitionListener {
 	public Transition getTransition() {
 		return transition;
 	}
+	
+	public boolean isInside(int x, int y) {
+		return false;
+	}
 
 	@Override
 	public void TransitionHasChanged() {

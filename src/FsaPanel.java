@@ -55,6 +55,7 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 		transitions.clear();
 		this.removeAll();
 		this.fsa = null;
+		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		machineState = M_IDLE;
 		creatingState = null;
 		creatingEventName = null;
@@ -323,7 +324,6 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 			Rectangle rec = buildRec(x0, y0, x, y);
 			g.drawRect(rec.x, rec.y, rec.width, rec.height);
 		} else if(machineState == M_CREATING_TRANSITION) {
-			setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 			if(fromStateIcon != null && toStateIcon == null) {
 				Point p = fromStateIcon.getLocation();
 				Point mousePoint = MouseInfo.getPointerInfo().getLocation();
@@ -352,6 +352,7 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 	}
 	
 	public void setMachineStateCreatingTransition(String eventName) {
+		setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 		this.machineState = M_CREATING_TRANSITION;
 		this.creatingEventName = eventName;
 		this.fromStateIcon = null;
