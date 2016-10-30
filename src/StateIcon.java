@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Rectangle;
 
 import javax.swing.JComponent;
@@ -65,6 +66,10 @@ public class StateIcon extends JComponent implements StateListener {
 			g.drawOval(0, Y_GAP, D_CIRCLE, D_CIRCLE);
 		}
 		
+		if(state.isCurrent()) {
+			g.drawOval(0, Y_GAP, 3, 3);
+		}
+		
 		// draw naming
 		g.setColor(Color.black);
 		int len = state.getName().length();
@@ -72,8 +77,9 @@ public class StateIcon extends JComponent implements StateListener {
 	}
 
 	public boolean isInside(final int x, final int y) {
-		double circleX = getX() + R_CIRCLE;
-		double circleY = getY() + Y_GAP + R_CIRCLE;
+		Point p = getLocation();
+		int circleX = p.x + R_CIRCLE;
+		int circleY = p.y + Y_GAP + R_CIRCLE;
 		double ar = Math.sqrt(Math.pow(Math.abs(x - circleX), 2)
 				+ Math.pow(Math.abs(y - circleY), 2));
 		if (ar >= R_CIRCLE) {

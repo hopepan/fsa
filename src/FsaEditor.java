@@ -458,7 +458,9 @@ public class FsaEditor extends JFrame {
     			}
     		} else if(c instanceof TransitionIcon) {
     			TransitionIcon ti = (TransitionIcon) c;
-    			
+    			if(ti.isSelected()) {
+    				this.fsa.removeTransition(ti.getTransition());
+    			}
     		}
     	}
     }                                      

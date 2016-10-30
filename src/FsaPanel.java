@@ -211,18 +211,24 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 			y0 = e.getY();
 			x = x0;
 			y = y0;
-			StateIcon selected = null;
+			StateIcon selectedSi = null;
+			TransitionIcon selectedTi = null;
 			for(Component c : this.getComponents()) {
 				if(c instanceof StateIcon) {
 					StateIcon si = (StateIcon) c;
 					// the pressed point is inside the stateIcon
 					if(si.isInside(x0, y0)) {
-						selected = si;
+						selectedSi = si;
+					}
+				} else if(c instanceof TransitionIcon) {
+					TransitionIcon ti = (TransitionIcon) c;
+					if(ti.isInside(x0, y0)) {
+						selectedTi = ti;
 					}
 				}
 			}
 			// no state is pressed
-			if(selected == null) {
+			if(selectedSi == null) {
 				machineState = M_SELECTING;
 				for(Component c : this.getComponents()) {
 					if(c instanceof StateIcon) {
@@ -231,7 +237,7 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 					}
 				}
 			} else {
-				if(selected.isSelected()) {
+				if(selectedSi.isSelected()) {
 					machineState = M_DRAGGING;
 				} else {
 					for(Component c : this.getComponents()) {
@@ -240,8 +246,27 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 							si.setSelected(false);
 						}
 					}
-//					selected.setPressed(true);
-					selected.setSelected(true);
+					selectedSi.setSelected(true);
+				}
+			}
+			// no transition is pressed
+			if(selectedTi == null) {
+//				machineState = M_SELECTING;
+				for(Component c : this.getComponents()) {
+					if(c instanceof TransitionIcon) {
+						TransitionIcon ti = (TransitionIcon) c;
+						ti.setSelected(false);
+					}
+				}
+			} else {
+				if(!selectedTi.isSelected()) {
+					for(Component c : this.getComponents()) {
+						if(c instanceof TransitionIcon) {
+							TransitionIcon ti = (TransitionIcon) c;
+							ti.setSelected(false);
+						}
+					}
+					selectedTi.setSelected(true);
 				}
 			}
 //			this.repaint();
@@ -278,6 +303,13 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 						si.setSelected(true);
 					} else {
 						si.setSelected(false);
+					}
+				} else if(c instanceof TransitionIcon) {
+					TransitionIcon ti = (TransitionIcon) c;
+					if(ti.intersects(rec)) {
+						ti.setSelected(true);
+					} else {
+						ti.setSelected(false);
 					}
 				}
 			}
@@ -346,12 +378,12 @@ public class FsaPanel extends JPanel implements FsaListener, MouseMotionListener
 		return rec;
 	}
 	
-	public void setMachineStateCreatingState(State s) {
+	public void setMachineStateCreatingState(final State s) {
 		this.machineState = M_CREATING_STATE;
 		this.creatingState = s;
 	}
 	
-	public void setMachineStateCreatingTransition(String eventName) {
+	public void setMachineStateCreatingTransition(final String eventName) {
 		setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 		this.machineState = M_CREATING_TRANSITION;
 		this.creatingEventName = eventName;

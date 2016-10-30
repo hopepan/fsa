@@ -27,6 +27,9 @@ public class FsaImpl implements Fsa, FsaSim {
 		for(State s : getInitialStates()) {
 			((StateImpl) s).setCurrent(true);
 		}
+		if(this.fsaListener != null) {
+			this.fsaListener.statesChanged();
+		}
 	}
 
 	@Override
@@ -57,6 +60,9 @@ public class FsaImpl implements Fsa, FsaSim {
 					}
 				}
 			}
+		}
+		if(this.fsaListener != null) {
+			this.fsaListener.statesChanged();
 		}
 	}
 

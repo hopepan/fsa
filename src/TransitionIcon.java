@@ -1,6 +1,8 @@
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.QuadCurve2D;
 
 import javax.swing.JComponent;
@@ -8,6 +10,8 @@ import javax.swing.JComponent;
 public class TransitionIcon extends JComponent implements TransitionListener {
 
 	private Transition transition;
+	
+	private boolean isSelected;
 	
 	private static final double FIX_ARC = Math.PI / 6;
 	private static final double SIN_FIX_ARC = Math.sin(FIX_ARC);
@@ -38,14 +42,27 @@ public class TransitionIcon extends JComponent implements TransitionListener {
 	
 	public TransitionIcon(final Transition t) {
 		this.transition = t;
+		this.isSelected = false;
 	}
 	
 	public Transition getTransition() {
 		return transition;
 	}
 	
-	public boolean isInside(int x, int y) {
-		return false;
+	public boolean isInside(final int x, final int y) {
+		Point p = getLocation();
+		int boundXL = p.x;
+		int boundYL = p.y;
+		int boundXR = boundXL + this.getWidth();
+		int boundYR = boundYL + this.getHeight();
+		if(x < boundXL || x > boundXR || y < boundYL || y > boundYR) {
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean intersects(final Rectangle rec) {
+		return rec.intersects(new Rectangle(this.getLocation().x, this.getLocation().y, this.getWidth(), this.getHeight()));
 	}
 
 	@Override
@@ -128,11 +145,30 @@ public class TransitionIcon extends JComponent implements TransitionListener {
 		super.paintComponent(g);
 		QuadCurve2D shape = new QuadCurve2D.Double();
 		shape.setCurve(xb1, yb1, xc, yc, xb2, yb2);
+		if(this.isSelected) {
+			g.setColor(Color.YELLOW);
+		} else {
+			g.setColor(Color.BLACK);
+		}
 		Graphics2D g2 = (Graphics2D) g;
 		g2.draw(shape);
-		g.setColor(Color.BLACK);
 		g.drawString(transition.eventName()==null?"?":transition.eventName(), (int)xc, (int)yc);
 		g.drawLine((int)arrow1x, (int)arrow1y, (int)xb2, (int)yb2);
 		g.drawLine((int)arrow2x, (int)arrow2y, (int)xb2, (int)yb2);
 	}
+
+	/**
+	 * @return the isSelected
+	 */
+	public boolean isSelected() {
+		return isSelected;
+	}
+
+	/**
+	 * @param isSelected the isSelected to set
+	 */
+	public void setSelected(final boolean isSelected) {
+		this.isSelected = isSelected;
+	}
+	
 }
